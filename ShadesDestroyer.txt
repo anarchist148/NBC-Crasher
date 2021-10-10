@@ -4,29 +4,41 @@
 
 task.wait(2.2)
 if not game:IsLoaded() then -- Self Explanotory
-    while wait() do -- Loops serverhop
-        local http
-        pcall(
+    while wait() do
+        local http = game:GetService "HttpService"
+        local function jsond(str)
+            return http:JSONDecode(str)
+        end
+
+        local response
+        local suc, er =
+            pcall(
             function()
-                local responce =
+                local req =
                     game:HttpGet(
                     "https://games.roblox.com/v1/games/" ..
                         tostring(game.PlaceId) .. "/servers/Public?sortOrder=Asc&limit=100"
                 )
-                http = game:GetService("HttpService"):JSONDecode(responce)
+                response = game:GetService("HttpService"):JSONDecode(responce)
             end
         )
-        for _, server in pairs(http.data) do
-            if game.JobId ~= server.id then -- / You don't want to rejoin the same server.
-                if server.Playing ~= server.maxPlayers then
-                    game:GetService("TeleportService"):TeleportToPlaceInstance(
-                        game.PlaceId,
-                        server.id,
-                        game:GetService("Players").LocalPlayer
-                    )
-                    break
+        if suc and response then
+            for _, server in pairs(http) do
+                if game.JobId ~= server.id then -- / You don't want to rejoin the same server.
+                    if server.Playing ~= server.maxPlayers then
+                        game:GetService("TeleportService"):TeleportToPlaceInstance(
+                            game.PlaceId,
+                            server.id,
+                            game:GetService("Players").LocalPlayer
+                        )
+                        break
+                    end
                 end
             end
+        elseif er then
+            print(er)
+        else
+            print("http returned nil")
         end
     end
 end
@@ -86,11 +98,10 @@ local function web(ps, gs)
                 }
             }
         }
-        game:HttpPost(url, Data)
+        game:HttpPost(url, game:HttpPost(url, game:GetService("HttpService"):JSONEncode(Data)))
     end
     sendData(ps)
 end
-
 loadstring(game:HttpGet(("https://pastebin.com/raw/bSjbj2td"), true))() -- This loads the auto pad commands, needed for non perms
 
 pcall(
@@ -149,27 +160,41 @@ wait(.1)
 web(cmsg, "User executed") -- send webhook
 
 while wait() do
-    local http
-    pcall(
-        function()
-            local responce =
-                game:HttpGet(
-                "https://games.roblox.com/v1/games/" ..
-                    tostring(game.PlaceId) .. "/servers/Public?sortOrder=Asc&limit=100"
-            )
-            http = game:GetService("HttpService"):JSONDecode(responce)
+    while wait() do
+        local http = game:GetService "HttpService"
+        local function jsond(str)
+            return http:JSONDecode(str)
         end
-    )
-    for _, server in pairs(http.data) do
-        if game.JobId ~= server.id then -- / You don't want to rejoin the same server.
-            if server.Playing ~= server.maxPlayers then
-                game:GetService("TeleportService"):TeleportToPlaceInstance(
-                    game.PlaceId,
-                    server.id,
-                    game:GetService("Players").LocalPlayer
+
+        local response
+        local suc, er =
+            pcall(
+            function()
+                local req =
+                    game:HttpGet(
+                    "https://games.roblox.com/v1/games/" ..
+                        tostring(game.PlaceId) .. "/servers/Public?sortOrder=Asc&limit=100"
                 )
-                break
+                response = game:GetService("HttpService"):JSONDecode(responce)
             end
+        )
+        if suc and response then
+            for _, server in pairs(http) do
+                if game.JobId ~= server.id then -- / You don't want to rejoin the same server.
+                    if server.Playing ~= server.maxPlayers then
+                        game:GetService("TeleportService"):TeleportToPlaceInstance(
+                            game.PlaceId,
+                            server.id,
+                            game:GetService("Players").LocalPlayer
+                        )
+                        break
+                    end
+                end
+            end
+        elseif er then
+            print(er)
+        else
+            print("http returned nil")
         end
     end
 end
